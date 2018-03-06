@@ -1,17 +1,27 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
-  .state {
-  }
-  .state_contour {
-    fill: none;
-    stroke: black;
-    stroke-linejoin: round;
-  }
-</style>
-<svg width="660" height="660"></svg>
-<script src="//d3js.org/d3.v4.min.js"></script>
-<script src="//d3js.org/topojson.v1.min.js"></script>
-<script src="//d3js.org/d3-geo-projection.v1.min.js"></script>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<script src="main.js"></script>
+<head>
+  <meta charset="utf-8">
+  <style>
+    select {
+      float: left;
+    }
+    .state_contour {
+      fill: none;
+      stroke: black;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+<body>
+  <select>
+    <option value="Dec-01">1º Decêndio</option>
+    <option value="Dec-02">2º Decêndio</option>
+    <option value="Dec-03">3º Decêndio</option>
+  </select>
+  <svg width="660" height="660"></svg>
+  <script src="//d3js.org/d3.v4.min.js"></script>
+  <script src="//d3js.org/topojson.v1.min.js"></script>
+  <script src="//d3js.org/d3-geo-projection.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <script src="main.js"></script>
+</body>
