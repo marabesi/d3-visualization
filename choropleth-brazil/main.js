@@ -1,6 +1,6 @@
 var svg = d3.select('svg'),
-    width = + svg.attr('width'),
-    height = + svg.attr('height'),
+    width = +svg.attr('width'),
+    height = +svg.attr('height'),
     g = svg.append('g');
 
 var brData = d3.map();
@@ -18,11 +18,11 @@ d3.queue()
     .defer(d3.json, 'brazil.json')
 
     // Data from: http://dados.gov.br/dataset/transferencias-constitucionais-para-estados
-    .defer(d3.tsv, 'idh.tsv', dataLoaded)
+    .defer(d3.csv, 'transmen201802.csv', dataLoaded)
     .await(ready);
 
 function dataLoaded(d) {
-    brData.set(d.id, +d.rate);
+    brData.set(d.UF, +d['Dec-02']);
 }
 
 function ready(error, shp) {
@@ -38,7 +38,7 @@ function ready(error, shp) {
         .attr('class', 'state')
         .attr('d', path)
         .attr('fill', function(d) {
-            return stateColor(brData.get(d.id))
+            return color(brData.get(d.id))
         });
     g.append('path')
         .datum(states_contour)
@@ -46,11 +46,6 @@ function ready(error, shp) {
         .attr('class', 'state_contour');
 }
 
-function stateColor(rate) {
-    if (rate >= 0 && rate <= 20) {
-        return '#ff0000';
-    }
-
-    return '#ccc';
-}
-
+var color = d3.scaleThreshold()
+    .domain([0, 1, 10, 100, 1000, 10000, 100000, 1000000])
+    .range(["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#756bb1", "#54278f"]);
