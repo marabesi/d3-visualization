@@ -6,6 +6,10 @@
 
 [flocking-boids](https://marabesi.github.io/d3-visualization/flocking-boids)
 
+[choropleth](https://marabesi.github.io/d3-visualization/choropleth)
+
+[choropleth-brazil](https://marabesi.github.io/d3-visualization/choropleth-brazil)
+
 # Local environment execution
 
 1) Clone this repository
