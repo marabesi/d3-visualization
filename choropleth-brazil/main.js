@@ -1,28 +1,30 @@
 window.addEventListener('load', load);
 
-var brData = d3.map();
+const brData = d3.map();
 
-var svg = d3.select('svg'),
-    width = +svg.attr('width'),
-    height = +svg.attr('height'),
-    g = svg.append('g');
+const svg = d3.select('svg');
+const width = +svg.attr('width');
+const height = +svg.attr('height');
+const g = svg.append('g');
 
-
-var projection = d3.geoMiller()
+const projection = d3.geoMiller()
     .center([-42, -15])
     .scale(600);
 
-var path = d3.geoPath()
+const path = d3.geoPath()
     .projection(projection);
 
-var color = d3.scaleThreshold()
+const color = d3.scaleThreshold()
     .domain([0, 1, 10, 100, 1000, 10000, 100000, 1000000])
     .range(["#f2f0f7", "#dadaeb", "#bcbddc", "#9e9ac8", "#756bb1", "#54278f"]);
 
+const x = d3.scaleLinear()
+    .domain([1, 10]);
+
 function load() {
-    var select = document.querySelector('select');
-    select.addEventListener('change', function(event) {
-        var selected = event.srcElement.value;
+    const select = document.querySelector('select');
+    select.addEventListener('change', (event) => {
+        const selected = event.srcElement.value;
         build(selected)
     });
 
@@ -46,8 +48,8 @@ function build(type) {
     function ready(error, shp) {
         if (error) throw error;
 
-        var states = topojson.feature(shp, shp.objects.estados);
-        var states_contour = topojson.mesh(shp, shp.objects.estados);
+        const states = topojson.feature(shp, shp.objects.estados);
+        const states_contour = topojson.mesh(shp, shp.objects.estados);
 
         g.selectAll('.estado')
             .data(states.features)
@@ -55,12 +57,19 @@ function build(type) {
             .append('path')
             .attr('class', 'state')
             .attr('d', path)
-            .attr('fill', function(d) {
+            .attr('fill', (d) => {
                 return color(brData.get(d.id))
             });
         g.append('path')
             .datum(states_contour)
             .attr('d', path)
             .attr('class', 'state_contour');
+
+        g.call(d3.axisBottom(x)
+            .tickSize(10)
+            .tickFormat((x, i) => i ? x : x + '%')
+            .tickValues(color.domain()))
+            .select('.domain')
+            .remove();
     }
 }
