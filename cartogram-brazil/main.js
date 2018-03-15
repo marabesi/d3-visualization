@@ -1,11 +1,13 @@
-// Based on http://www.limn.co.za/2013/10/making-a-cartogram/
+/**
+ * This cartogram is based on http://www.limn.co.za/2013/10/making-a-cartogram,
+ * which is a simplification from http://prag.ma/code/d3-cartogram/ (Shawn Allen).
+ * For more info see Jeff Fletcher's post at http://www.limn.co.za/2013/10/making-a-cartogram/
+ */
 
-var colour_map = {
-    'ANC': '#FFCC00',
-    'DA': '#005CA7',
-    'BA': '#005CA7',
-    'IFP': '#FF1800'
-};
+var colors = d3.scale.linear()
+    .domain([10, 46232200])
+    .range(['#ccc', '#999'])
+    .range(['#dadaeb', '#54278f'])
 
 var map = d3.select('#map');
 
@@ -30,48 +32,94 @@ var carto = d3.cartogram()
         return d.properties;
     });
 
-d3.csv('data/voting_data.csv', function (data) {
+// http://dados.gov.br/dataset/mpog_mcmv
+d3.csv('data/MCMV_03_2012.csv', function (data) {
     data.forEach(function (d) {
-        vote_data.set(d.MUNIC, [d.PARTY, d.VOTERS, d.VOTES]);
+        vote_data.set(d.UF, [d.Valor]);
     })
-});
 
-d3.json('brazil.json', function (data) {
-    topology = data;
-    geometries = topology.objects.estados.geometries;
+    d3.json('brazil.json', function (data) {
+        topology = data;
+        geometries = topology.objects.estados.geometries;
 
-    var features = carto.features(topology, geometries);
-    var path = d3.geo.path()
-        .projection(proj);
+        const features = carto.features(topology, geometries);
+        const path = d3.geo.path()
+            .projection(proj);
 
-    munics = munics.data(features)
-        .enter()
-        .append('path')
-        .attr('class', 'munic')
-        .attr('id', function (d) {
-            return d.id;
-        })
-        .attr('stroke', '#000')
-        .attr('fill', function (e) {
-            var current = colour_map[e.id];
-            if (current) {
-                return current;
-            }
+        munics = munics.data(features)
+            .enter()
+            .append('path')
+            .attr('class', 'munic')
+            .attr('id', function (d) {
+                return d.id;
+            })
+            .attr('stroke', '#000')
+            .attr('fill', function (e) {
+                return colors(vote_data.get(e.id).reduce(add));
+            })
+            .on('mouseover', function(d) {
+                const el = document.querySelector('.info');
+                el.setAttribute('style', 'display: block');
 
-            return '#ccc';
-        })
-        .attr('d', path);
+                const state= document.querySelector('#state');
+                state.innerHTML = d.properties.nome;
 
-    munics.append('title')
-        .text(function (d) {
-            return d.properties.nome;
+                const amount = document.querySelector('#amount');
+                amount.innerHTML = formatWithComma(vote_data.get(d.id).reduce(add));
+                console.log(d)
+            })
+            .on('mouseout', function(d) {
+                 const el = document.querySelector('.info');
+                el.setAttribute('style', 'display: none');
+            })
+            .attr('d', path);
+
+        munics.append('title')
+           .text(function (d) {
+               return d.properties.nome;
+           });
+
+        d3.selectAll('path').each(function(g) {
+            var t = document.createElement('text');
+
+            this.parentNode.insertBefore(t, this.nextSibling);
+
+            d3.select(t)
+                .attr("class", "nodetext")
+             // https://dillieodigital.wordpress.com/2013/02/13/quick-tip-getting-the-centroid-of-an-individual-svg-path-selection-in-d3/
+             // .attr('x', function(d,i){
+             //     return h.centroid(d)[0]; // horizontal center of path
+             // })
+             // .attr('y', function(d,i){
+             //     return path.centroid(d)[1] + 13; // vertical center of path
+             // })
+             .attr('text-anchor','middle')
+             .text(function (d) {
+                 return g.id;
+             })
+             .text(function(d) {
+                 return g.properties.nome;
+             });
         });
 
-    d3.select('#click_to_run').text('click here to run');
+        d3.select('#click_to_run').text('Show cartogram');
+    });
 });
 
 function add(a, b) {
     return a + b;
+}
+
+function formatWithComma(nStr) {
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
 }
 
 function do_update() {
@@ -79,13 +127,20 @@ function do_update() {
 
     setTimeout(function () {
         carto.value(function (d) {
-            var number =  +vote_data.get(d.id)[2];
+            var number = +vote_data.get(d.id).reduce(add);
+
+            if (number === 0) {
+               return 0.1;
+            }
+
+            number = number * 10;
+
             return number;
         });
 
-
-        if (carto_features == undefined)
+        if (carto_features == undefined) {
             carto_features = carto(topology, geometries).features;
+        }
 
         munics.data(carto_features)
             .select('title')

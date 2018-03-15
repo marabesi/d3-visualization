@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>ZA Cartogram</title>
+    <title>Brazil Cartogram</title>
     <meta charset="utf-8">
     <script src="lib/d3.v2.min.js"></script>
     <script src="lib/topojson.js"></script>
@@ -19,7 +19,7 @@
       }
       #map-container {
         height: 500px;
-
+float: left;
         position: relative;
         margin: 10px 0;
       }
@@ -34,6 +34,7 @@
         text-align: center;
         cursor: pointer;
         padding-top: 30px;
+        padding-bottom: 30px;
       }
       path.munic {
         stroke: #AAA;
@@ -41,6 +42,15 @@
       }
       path.munic:hover {
         stroke: #000;
+      }
+      .info {
+        width: 200px;
+        height: 200px;
+        background-color: #999;
+        float: right;
+        color: #fff;
+        padding: 10px;
+        display: none;
       }
     </style>
   </head>
@@ -51,6 +61,11 @@
     </div>
     <div id="map-container">
       <svg id="map"></svg>
+    </div>
+
+    <div class="info">
+      <p id="amount"></p>
+      <p id="state"></p>
     </div>
 
     <script src="main.js"></script>
