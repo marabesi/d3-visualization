@@ -10,6 +10,8 @@
 
 [choropleth-brazil](https://marabesi.github.io/d3-visualization/choropleth-brazil)
 
+[cartogram-brazil](https://marabesi.github.io/d3-visualization/cartogram-brazil)
+
 # Local environment execution
 
 1) Clone this repository
