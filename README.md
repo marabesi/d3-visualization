@@ -10,6 +10,12 @@
 
 [choropleth-brazil](https://marabesi.github.io/d3-visualization/choropleth-brazil)
 
+[cartogram-brazil](https://marabesi.github.io/d3-visualization/cartogram-brazil)
+
+[word-cloud](https://marabesi.github.io/d3-visualization/word-cloud)
+
+[word-cloud-brazil](https://marabesi.github.io/d3-visualization/word-cloud-brazil)
+
 # Local environment execution
 
 1) Clone this repository
