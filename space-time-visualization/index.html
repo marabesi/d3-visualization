@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Brazil Cartogram</title>
+    <meta charset="utf-8">
+    <script src="lib/d3.v2.min.js"></script>
+    <script src="lib/topojson.js"></script>
+    <script src="lib/cartogram.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+      body {
+        font-family:'Open Sans', sans-serif;
+        font-weight: 300;
+        font-size: 14px;
+        line-height: 1.4em;
+        padding-top: 20px;
+        margin: 0 auto;
+        width: 600px;
+      }
+      #map-container {
+        height: 500px;
+float: left;
+        position: relative;
+        margin: 10px 0;
+      }
+
+      #map {
+        overflow: visible;
+      }
+      #click_to_run {
+        color:#888;
+        width: 600px;
+        font-size: 2em;
+        text-align: center;
+        cursor: pointer;
+        padding-top: 30px;
+        padding-bottom: 30px;
+      }
+      path.munic {
+        stroke: #AAA;
+        stroke-width: .5;
+      }
+      path.munic:hover {
+        stroke: #000;
+      }
+      .info {
+        width: 200px;
+        height: 200px;
+        background-color: #999;
+        float: right;
+        color: #fff;
+        padding: 10px;
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <label>
+      Ano
+      <select id="years">
+        <option>All</option>
+      </select>
+    </label>
+
+    <div id="click_to_run" onclick="do_update()">
+      ...
+    </div>
+    <div id="map-container">
+      <svg id="map"></svg>
+    </div>
+
+    <div class="info">
+      <p id="amount"></p>
+      <p id="state"></p>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>
