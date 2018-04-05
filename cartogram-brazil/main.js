@@ -66,7 +66,6 @@ d3.csv('data/MCMV_03_2012.csv', function (data) {
 
                 const amount = document.querySelector('#amount');
                 amount.innerHTML = formatWithComma(vote_data.get(d.id).reduce(add));
-                console.log(d)
             })
             .on('mouseout', function(d) {
                  const el = document.querySelector('.info');
