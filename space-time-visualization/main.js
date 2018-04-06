@@ -5,9 +5,9 @@
  */
 
 var colors = d3.scale.linear()
-    .domain([1, 820])
+    .domain([0, 820])
     .range(['#ccc', '#999'])
-    .range(['#dadaeb', '#54278f'])
+    .range(['#dadaeb', '#54278f']);
 
 var map = d3.select('#map');
 
@@ -32,8 +32,9 @@ var carto = d3.cartogram()
         return d.properties;
     });
 
+const localStorage = window.localStorage;
 var years = [];
-let selectedYear = 0;
+let selectedYear = localStorage.getItem('year');
 
 function groupBy(list, keyGetter) {
     const map = new Map();
@@ -52,10 +53,12 @@ function groupBy(list, keyGetter) {
 const yearsElement = document.getElementById('years');
 yearsElement.addEventListener('change', (event) => {
     selectedYear = event.target.value;
-    test();
+
+    localStorage.setItem('year', selectedYear);
+    window.location.reload();
 });
 
-function test() {
+function load(callback) {
     // http://dados.gov.br/dataset/dominios-gov-br
     d3.csv('data/Dominios_GovBR_basico.csv', function (data) {
         const grouped = groupBy(data, item => item.uf);
@@ -73,6 +76,13 @@ function test() {
         years.forEach((value) => {
             const text = document.createTextNode(value);
             const option = document.createElement('option');
+            const selected = document.createAttribute('selected');
+
+            if (selectedYear == value) {
+                selected.selected = "selected";
+                option.setAttributeNode(selected);
+            }
+
             option.appendChild(text);
             yearsElement.appendChild(option);
         })
@@ -81,7 +91,7 @@ function test() {
             const item = data.data_cadastro;
 
             const filtered = d.filter((data) => {
-                return data.data_cadastro.search(/ + selectedYear + }/);
+                return data.data_cadastro.includes(selectedYear);
             });
 
             domains_data.set(key, filtered.length);
@@ -143,9 +153,11 @@ function test() {
                     });
             });
 
-            d3.select('#click_to_run').text('Show cartogram');
+            d3.select('#click_to_run').text('Loading...');
         });
     });
+
+    setTimeout(callback, 1000);
 }
 
 function add(a, b) {
@@ -172,7 +184,7 @@ function do_update() {
             var number = +domains_data.get(d.id);
 
             if (number === 0) {
-               return 100000;
+               return 0.5;
             }
 
             number = number * 10;
@@ -199,4 +211,5 @@ function do_update() {
     }, 10);
 }
 
-test()
+load(do_update);
+
