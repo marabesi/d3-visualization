@@ -1,0 +1,29 @@
+{
+    "name": "Software",
+    "children": [
+        {
+            "name": "infrastructure",
+            "size": 2123
+        },
+        {
+            "name": "planning",
+            "size" : 4213
+        },
+        {
+            "name": "development",
+            "children": [
+                {"name": "Technology", "size": 4616},
+                {"name": "Programmer", "size": 4027}
+            ]
+        },
+        {
+            "name": "tests",
+            "children": [
+                {"name": "White box", "size": 8138},
+                {"name": "Black box", "size": 8824},
+                {"name": "Unit", "size": 8435},
+                {"name": "User acceptance", "size": 8435}
+            ]
+        }
+    ]
+}
