@@ -1,0 +1,31 @@
+<head>
+  <style>
+body {
+  font: 10px sans-serif;
+}
+
+#circle circle {
+  fill: none;
+  pointer-events: all;
+}
+
+.group path {
+  fill-opacity: .5;
+}
+
+path.chord {
+  stroke: #000;
+  stroke-width: .25px;
+}
+
+#circle:hover path.fade {
+  display: none;
+}
+  </style>
+</head>
+<body>
+  <h1>Followers x Following</h1>
+  <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="//d3js.org/queue.v1.min.js"></script>
+  <script src="main.js"></script>
+</body>
