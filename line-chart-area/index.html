@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang='en-US'>
+
+<head>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main>
+    <div class='gia-chart-wrapper'>
+      <div class='gia-chart'></div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
+  <script>
+    var margin = { top: 20, right: 10, bottom: 30, left: 265 };
+
+    var widther = d3.select(".gia-chart").node().clientWidth;
+
+    var width = widther,
+      height = 530 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%Y").parse;
+
+    format = d3.format("0,000");
+
+    //Appends the svg to the chart-container div
+    var svg = d3.select(".gia-chart").append("svg")
+      .attr("width", width)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    //Creates the xScale 
+    var xScale = d3.time.scale()
+      .range([0, width]);
+
+    //Creates the yScale
+    var yScale = d3.scale.linear()
+      .range([height, 0]);
+
+    //Defines the y axis styles
+    var yAxis = d3.svg.axis()
+      .scale(yScale)
+      .tickSize(-width)
+      .tickPadding(8)
+      .ticks(6)
+      .tickFormat(function (d) { return "$" + format(d); })
+      .orient("left");
+
+    //line function convention (feeds an array)
+    var blueLine = d3.svg.line()
+      .x(function (d) { return xScale(d.year); })
+      .y(function (d) { return yScale(d.blueValue); });
+
+    var redLine = d3.svg.line()
+      .x(function (d) { return xScale(d.year); })
+      .y(function (d) { return yScale(d.redValue); });
+
+    d3.csv("example.csv", ready);
+
+    function ready(err, data) {
+      if (err) throw "error loading data";
+
+      // base line
+      const BASELINE = 200000
+
+      const dataRedLine = data.filter(d => d.redValue >= BASELINE && d.redValue <= 240000)
+      const belowBaseLine = data.filter(d => d.redValue <= BASELINE)
+
+      const total = (data.length + 6) / 100
+
+      const colorAboveBase = (dataRedLine.length / total).toFixed(2)
+      const colorbelowBaseLine = (belowBaseLine.length / total).toFixed(2)
+
+      console.log(colorAboveBase)
+      console.log(colorbelowBaseLine)
+      console.log(parseInt(colorAboveBase) + parseInt(colorbelowBaseLine))
+
+      var grad = svg
+        .append("defs")
+        .append("linearGradient")
+        .attr("id", "grad")
+
+      grad.append("stop").attr("offset", "0%").attr("stop-color", "red");
+      grad.append("stop").attr("offset", colorAboveBase + "%").attr("stop-color", "red");
+      grad.append("stop").attr("offset", colorAboveBase + "%").attr("stop-color", "green");
+      grad.append("stop").attr("offset", "100%").attr("stop-color", "green");
+
+      //FORMAT data
+      data.forEach(function (d) {
+        d.blueValue = parseInt(d.blueValue);
+        d.redValue = parseInt(d.redValue);
+        d.year = parseDate(d.year);
+      });
+
+      //Organizes the data	
+      data.sort(function (a, b) { return a.year - b.year; });
+
+
+      // just finds out the max Y axis and max X axis
+      var maxY = 250000;//d3.max(data, function (d) { return d.blueValue; });
+      var maxX = d3.max(data, function (d) { return d.year; });
+
+      //Area
+      var indexes = d3.range(data.length);
+
+      var area = d3.svg.area()
+        .x(function (d) { return xScale(d.year); })
+        .y0(function (d) { return yScale(d.blueValue); })
+        .y1(function (d) { return yScale(d.redValue); })
+
+      //Defines the y axis styles
+      var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .tickPadding(8)
+        .orient("bottom")
+        .ticks(6)
+        .tickFormat(d3.time.format("%Y"));
+
+      //Defines the xScale max
+      xScale.domain(d3.extent(data, function (d) { return d.year; }));
+
+      //Defines the yScale max
+      yScale.domain([0, maxY]);
+
+      //Appends the y axis
+      var yAxisGroup = svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .selectAll("g")
+        .classed("g-baseline", function (d) { return d == 0 });
+
+      //Appends the x axis
+      var xAxisGroup = svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+      //Area in between
+      var drawarea = svg.append("path")
+        .datum(data)
+        .attr("class", "area")
+        .attr("fill", "url(#grad)")
+        .attr("d", area);
+
+      //Data join for paths 
+      var drawBlueLine = svg.append("path")
+        .datum(data)
+        .attr("class", "blueLine")
+        .attr("d", blueLine);
+
+      svg.append("path")
+        .datum(data)
+        .attr("d", function (d) {
+           return redLine(dataRedLine)
+        })
+        .attr("stroke", "red")
+        .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+      svg.append("path")
+        .datum(data)
+        .attr("d", function (d) {
+            return redLine(belowBaseLine)
+        })
+        .attr("stroke", "green")
+        .attr("stroke-width", 1)
+        .attr("fill", "none");
+
+      //RESPONSIVENESS
+      d3.select(window).on("resize", resized);
+
+      function resized() {
+
+        //new margin
+        var newMargin = { top: 20, right: 10, bottom: 30, left: 65 };
+
+        var newWidther = d3.select(".gia-chart").node().clientWidth;
+
+        var newWidth = newWidther - newMargin.left - newMargin.right;
+
+        //Change the width of the svg
+        d3.select("svg")
+          .attr("width", newWidth + newMargin.left + newMargin.right);
+
+        //Change the xScale
+        xScale
+          .range([0, newWidth]);
+
+        //Update the blue line
+        blueLine = d3.svg.line()
+          .x(function (d) { return xScale(d.year); })
+          .y(function (d) { return yScale(d.blueValue); });
+
+        d3.selectAll('.blueLine')
+          .attr("d", blueLine);
+
+        //Update the red line
+        redLine = d3.svg.line()
+          .x(function (d) {
+            return xScale(d.year);
+          })
+          .y(function (d) {
+            return yScale(d.redValue);
+          })
+
+        d3.selectAll('.redLine')
+          .attr("d", redLine);
+
+        //Updates xAxis
+        d3.selectAll(".x.axis")
+          .call(xAxis);
+
+        //Updates ticks
+        xAxis
+          .scale(xScale)
+          .ticks(6);
+
+        //Updates yAxis
+        d3.selectAll(".y.axis")
+          .call(yAxis);
+
+        yAxis
+          .tickSize(-newWidth);
+
+        //Updates area
+        area = d3.svg.area()
+          .x(function (d) { return xScale(d.year); })
+          .y0(function (d) { return yScale(d.blueValue); })
+          .y1(function (d) { return yScale(d.redValue); });
+
+        d3.selectAll('.area')
+          .attr("d", area);
+      };
+    }
+  </script>
+</body>
+
+</html>
