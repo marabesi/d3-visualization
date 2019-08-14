@@ -6,19 +6,15 @@
 </head>
 
 <body>
-  <main>
-    <div class='gia-chart-wrapper'>
-      <div class='gia-chart'></div>
-    </div>
-  </main>
+  <div class='gia-chart'></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" charset="utf-8"></script>
   <script>
-    var margin = { top: 20, right: 10, bottom: 30, left: 265 };
+    var margin = { top: 20, right: 50, bottom: 30, left: 50 };
 
     var widther = d3.select(".gia-chart").node().clientWidth;
 
-    var width = widther,
+    var width = widther - 200,
       height = 530 - margin.top - margin.bottom;
 
     var parseDate = d3.time.format("%Y").parse;
@@ -26,9 +22,11 @@
     format = d3.format("0,000");
 
     //Appends the svg to the chart-container div
-    var svg = d3.select(".gia-chart").append("svg")
-      .attr("width", width)
-      .attr("height", height + margin.top + margin.bottom)
+    var svg = d3.select(".gia-chart")
+      .append("svg")
+      .attr("viewBox", '0 0 ' + (width + 100) + ' ' + (height + 200))
+      // .attr("width", width)
+      // .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -58,7 +56,10 @@
       .x(function (d) { return xScale(d.year); })
       .y(function (d) { return yScale(d.redValue); });
 
-    d3.csv("example.csv", ready);
+    var search = new URLSearchParams(document.location.search)
+    var file = search.get('dataset') || 'example'
+
+    d3.csv(file + ".csv", ready);
 
     function ready(err, data) {
       if (err) throw "error loading data";
@@ -73,10 +74,6 @@
 
       const colorAboveBase = (dataRedLine.length / total).toFixed(2)
       const colorbelowBaseLine = (belowBaseLine.length / total).toFixed(2)
-
-      console.log(colorAboveBase)
-      console.log(colorbelowBaseLine)
-      console.log(parseInt(colorAboveBase) + parseInt(colorbelowBaseLine))
 
       var grad = svg
         .append("defs")
@@ -97,7 +94,6 @@
 
       //Organizes the data	
       data.sort(function (a, b) { return a.year - b.year; });
-
 
       // just finds out the max Y axis and max X axis
       var maxY = 250000;//d3.max(data, function (d) { return d.blueValue; });
@@ -152,15 +148,17 @@
         .attr("d", blueLine);
 
       svg.append("path")
+        .attr('class', 'line-above-base-line')
         .datum(data)
         .attr("d", function (d) {
            return redLine(dataRedLine)
         })
         .attr("stroke", "red")
-        .attr("stroke-width", 1)
+        .attr("stroke-width", 2)
         .attr("fill", "none");
 
       svg.append("path")
+        .attr('class', 'line-below-base-line')
         .datum(data)
         .attr("d", function (d) {
             return redLine(belowBaseLine)
@@ -169,11 +167,33 @@
         .attr("stroke-width", 1)
         .attr("fill", "none");
 
+      var fixedbar = svg
+      .append('g')
+      .attr("transform", function () {
+        const lastPoint = data[data.length - 1];
+        return "translate(" + (width - 10) + "," + yScale(lastPoint.redValue) + ")"
+      })
+
+      fixedbar
+        .append('circle')
+        .attr('cx', 10)
+        .attr('cy', 10)
+        .attr('r', 10)
+
+      fixedbar 
+        .append('line')
+        .attr('x1', 5)
+        .attr('y1', 10)
+        .attr('x2', 190)
+        .attr('y2', 50)
+        .attr('transform', 'rotate(-102 82 100)')
+        .attr("stroke-width", 2)
+        .attr('stroke', 'black')
+
       //RESPONSIVENESS
       d3.select(window).on("resize", resized);
 
       function resized() {
-
         //new margin
         var newMargin = { top: 20, right: 10, bottom: 30, left: 65 };
 
@@ -209,6 +229,16 @@
         d3.selectAll('.redLine')
           .attr("d", redLine);
 
+        d3.selectAll('.line-above-base-line')
+          .attr("d", function (d) {
+            return redLine(dataRedLine)
+          })
+
+        d3.selectAll('.line-below-base-line')
+          .attr("d", function (d) {
+            return redLine(belowBaseLine)
+          })
+
         //Updates xAxis
         d3.selectAll(".x.axis")
           .call(xAxis);
@@ -234,6 +264,7 @@
         d3.selectAll('.area')
           .attr("d", area);
       };
+
     }
   </script>
 </body>
