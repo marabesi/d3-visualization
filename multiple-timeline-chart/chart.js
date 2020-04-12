@@ -16,7 +16,7 @@ var line = d3.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.temperature); });
 
-d3.csv("clei.csv", type, function(error, data) {
+d3.csv("software-test-x-unit-test.csv", type, function(error, data) {
   if (error) throw error;
 
   var cities = data.columns.slice(1).map(function(id) {
@@ -50,7 +50,7 @@ d3.csv("clei.csv", type, function(error, data) {
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
-      .text("Temperature, ºF");
+      .text("Teste de software");
 
   var city = g.selectAll(".city")
     .data(cities)
