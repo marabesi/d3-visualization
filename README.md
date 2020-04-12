@@ -1,6 +1,6 @@
 # d3-visualization
 
-[cartogram](https://marabesi.github.io/d3-visualization/cartogram)
+[cartogram](https://marabesi.github.io/d3-visualization/cartogram/cartogram-d3/)
 
 [cartogram brazil](https://marabesi.github.io/d3-visualization/cartogram-brazil)
 
